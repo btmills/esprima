@@ -363,7 +363,7 @@ parseYieldExpression: true
 
         switch (id.length) {
         case 2:
-            return (id === 'if') || (id === 'in') || (id === 'do');
+            return (id === 'if') || (id === 'in') || (id === 'do') || (id === 'fn');
         case 3:
             return (id === 'var') || (id === 'for') || (id === 'new') ||
                 (id === 'try') || (id === 'let');
@@ -2504,7 +2504,7 @@ parseYieldExpression: true
                 return delegate.createThisExpression();
             }
 
-            if (matchKeyword('function')) {
+            if (matchKeyword('function') || matchKeyword('fn')) {
                 return parseFunctionExpression();
             }
 
@@ -3320,6 +3320,7 @@ parseYieldExpression: true
             case 'const':
             case 'var':
             case 'class':
+            case 'fn':
             case 'function':
                 return delegate.createExportDeclaration(parseSourceElement(), null, null);
             }
@@ -3928,6 +3929,7 @@ parseYieldExpression: true
                 return parseDoWhileStatement();
             case 'for':
                 return parseForStatement();
+            case 'fn':
             case 'function':
                 return parseFunctionDeclaration();
             case 'class':
@@ -4154,7 +4156,11 @@ parseYieldExpression: true
     function parseFunctionDeclaration() {
         var id, body, token, tmp, firstRestricted, message, previousStrict, previousYieldAllowed, generator;
 
-        expectKeyword('function');
+        if (lookahead.value === 'fn') {
+            expectKeyword('fn');
+        } else {
+            expectKeyword('function');
+        }
 
         generator = false;
         if (match('*')) {
@@ -4210,7 +4216,11 @@ parseYieldExpression: true
     function parseFunctionExpression() {
         var token, id = null, firstRestricted, message, tmp, body, previousStrict, previousYieldAllowed, generator;
 
-        expectKeyword('function');
+        if (lookahead.value === 'fn') {
+            expectKeyword('fn');
+        } else {
+            expectKeyword('function');
+        }
 
         generator = false;
 
@@ -4477,6 +4487,7 @@ parseYieldExpression: true
             case 'const':
             case 'let':
                 return parseConstLetDeclaration(lookahead.value);
+            case 'fn':
             case 'function':
                 return parseFunctionDeclaration();
             case 'export':
